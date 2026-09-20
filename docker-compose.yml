@@ -1,0 +1,21 @@
+# Para desarrollo local. Necesitas tener el wallet de Oracle ya
+# descomprimido en ./backend/oracle_wallet y tu backend/.env apuntando
+# ahí con TNS_ADMIN=/oracle_wallet (ver backend/.env.example).
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/oracle_wallet:/oracle_wallet:ro
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - backend

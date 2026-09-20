@@ -1,0 +1,13 @@
+﻿# Backend
+backend/.env
+**/wallet/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.venv/
+
+# Frontend
+frontend/.env
+frontend/node_modules/
+frontend/dist/
+
+.DS_Store
