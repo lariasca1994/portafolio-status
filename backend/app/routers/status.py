@@ -1,75 +1,161 @@
-# Portfolio Status
+from fastapi import APIRouter, HTTPException
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
-![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black)
-![Oracle DB](https://img.shields.io/badge/Oracle_DB-F80000?style=flat&logo=oracle&logoColor=white)
-![Render](https://img.shields.io/badge/Render-000000?style=flat&logo=render&logoColor=white)
-![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat&logo=vercel&logoColor=white)
+from .. import database
+from ..projects import PROJECTS, PROJECTS_BY_SLUG
 
-Panel en vivo que revisa automáticamente, cada pocos minutos, si cada uno de
-los proyectos del portafolio sigue en línea y qué tan rápido responde — con
-historial de disponibilidad y una tarjeta por proyecto, cada una con enlace
-directo a su demo.
+router = APIRouter(prefix="/api/status", tags=["status"])
 
-## Demo en vivo
 
-**Panel:** [frontend-nine-topaz-99.vercel.app](https://frontend-nine-topaz-99.vercel.app/)
-**API:** [portafolio-status.onrender.com](https://portafolio-status.onrender.com/)
+@router.get("")
+def get_status():
+    """Estado actual de todos los proyectos: el último chequeo de cada
+    uno, más su % de disponibilidad y tiempo de respuesta promedio de
+    los últimos 7 días. Esto es lo que pinta cada tarjeta del dashboard."""
 
-## Qué hace
+    latest_by_slug = {row["proyecto"]: row for row in database.fetch_latest_per_project()}
 
-- Un backend revisa periódicamente la URL de cada proyecto y guarda el
-  resultado (si respondió, con qué código HTTP, y en cuántos milisegundos).
-- El frontend muestra una tarjeta por proyecto: su estado actual, el tiempo
-  de respuesta, el % de disponibilidad de los últimos 7 días, y un historial
-  reciente en forma de barras. Cada tarjeta es un enlace directo al proyecto.
-- La lista de proyectos monitoreados está en `backend/app/projects.py`.
+    result = []
+    for project in PROJECTS:
+        slug = project["slug"]
+        latest = latest_by_slug.get(slug)
+        stats = database.fetch_uptime_percent(slug, dias=7)
 
-## Estructura
+        result.append(
+            {
+                "slug": slug,
+                "name": project["name"],
+                "url": project["url"],
+                "color_light": project["color_light"],
+                "color_dark": project["color_dark"],
+                "disponible": bool(latest["disponible"]) if latest else None,
+                "status_code": latest["status_code"] if latest else None,
+                "tiempo_ms": latest["tiempo_ms"] if latest else None,
+                "checked_at": latest["checked_at"].isoformat() if latest else None,
+                "uptime_pct_7d": stats["uptime_pct"],
+                "avg_ms_7d": stats["avg_ms"],
+            }
+        )
 
-```
-portfolio-status/
-├── backend/     FastAPI — revisa los proyectos y expone la API
-├── frontend/    React + Vite — el panel visual
-└── db/          Script SQL para crear el esquema en Oracle
-```
+    return {"projects": result}
 
-## A qué se conecta
 
-- **Base de datos:** Oracle Autonomous Database, en un esquema propio
-  (`PORTFOLIO_STATUS`), separado del de cualquier otro proyecto.
-- **Backend:** desplegado en Render.
-- **Frontend:** desplegado en Vercel.
+@router.get("/{slug}/historial")
+def get_history(slug: str, puntos: int = 14):
+    if slug not in PROJECTS_BY_SLUG:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
 
-## Cómo correrlo en local
+    history = database.fetch_history(slug, puntos=puntos)
+    return {
+        "slug": slug,
+        "historial": [
+            {
+                "disponible": bool(row["disponible"]),
+                "tiempo_ms": row["tiempo_ms"],
+                "checked_at": row["checked_at"].isoformat(),
+            }
+            for row in history
+        ],
+    }
+from datetime import datetime, timezone
 
-1. Base de datos: correr `db/001_crear_esquema.sql` en tu Autonomous
-   Database (ver los comentarios del archivo).
-2. Backend:
-```
-   cd backend
-   cp .env.example .env   # completar con tus datos
-   pip install -r requirements.txt
-   uvicorn app.main:app --reload
-```
-3. Frontend:
-```
-   cd frontend
-   cp .env.example .env
-   npm install
-   npm run dev
-```
+from fastapi import APIRouter, HTTPException, Response
 
-También se puede levantar todo con `docker compose up` desde la raíz del
-repo (requiere tener el wallet de Oracle ya descomprimido en
-`backend/wallet/`).
+from .. import database
+from ..projects import PROJECTS, PROJECTS_BY_SLUG
 
-## Despliegue
+router = APIRouter(prefix="/api/status", tags=["status"])
 
-- **Base de datos:** Oracle Autonomous Database (Always Free).
-- **Backend:** Render, como servicio Docker (usa `backend/Dockerfile`); el
-  wallet de Oracle se pasa codificado en base64 en la variable de entorno
-  `ORACLE_WALLET_B64`, ya que Render no tiene disco persistente.
-- **Frontend:** Vercel, con `frontend` como Root Directory y `VITE_API_URL`
-  apuntando a la URL del backend en Render.
+
+@router.get("")
+def get_status():
+    """Estado actual de todos los proyectos: el último chequeo de cada
+    uno, más su % de disponibilidad y tiempo de respuesta promedio de
+    los últimos 7 días. Esto es lo que pinta cada tarjeta del dashboard."""
+
+    latest_by_slug = {row["proyecto"]: row for row in database.fetch_latest_per_project()}
+
+    result = []
+    for project in PROJECTS:
+        slug = project["slug"]
+        latest = latest_by_slug.get(slug)
+        stats = database.fetch_uptime_percent(slug, dias=7)
+
+        result.append(
+            {
+                "slug": slug,
+                "name": project["name"],
+                "url": project["url"],
+                "color_light": project["color_light"],
+                "color_dark": project["color_dark"],
+                "disponible": bool(latest["disponible"]) if latest else None,
+                "status_code": latest["status_code"] if latest else None,
+                "tiempo_ms": latest["tiempo_ms"] if latest else None,
+                "checked_at": latest["checked_at"].isoformat() if latest else None,
+                "uptime_pct_7d": stats["uptime_pct"],
+                "avg_ms_7d": stats["avg_ms"],
+            }
+        )
+
+    return {"projects": result}
+
+
+@router.get("/{slug}/historial")
+def get_history(slug: str, puntos: int = 14):
+    if slug not in PROJECTS_BY_SLUG:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+
+    history = database.fetch_history(slug, puntos=puntos)
+    return {
+        "slug": slug,
+        "historial": [
+            {
+                "disponible": bool(row["disponible"]),
+                "tiempo_ms": row["tiempo_ms"],
+                "checked_at": row["checked_at"].isoformat(),
+            }
+            for row in history
+        ],
+    }
+
+
+@router.get("/badge.svg")
+def get_badge():
+    """SVG con el resumen en vivo (cuántos proyectos están arriba ahora
+    mismo y hace cuánto se revisó), pensado para incrustarse con <img>
+    en un README de GitHub -- ahí no se permiten iframes ni JavaScript,
+    así que esta es la forma de que al menos el conteo se vea real cada
+    vez que alguien abre el perfil."""
+
+    latest_by_slug = {row["proyecto"]: row for row in database.fetch_latest_per_project()}
+    total = len(PROJECTS)
+    online = sum(1 for row in latest_by_slug.values() if row["disponible"])
+
+    ultima = None
+    for row in latest_by_slug.values():
+        checked = row["checked_at"]
+        if ultima is None or checked > ultima:
+            ultima = checked
+
+    if ultima:
+        segundos = int((datetime.now(timezone.utc) - ultima.replace(tzinfo=timezone.utc)).total_seconds())
+        hace = f"hace {segundos}s" if segundos < 60 else f"hace {segundos // 60}min"
+    else:
+        hace = "sin datos aún"
+
+    todo_bien = online == total
+    color = "#0ca30c" if todo_bien else "#fab219"
+    punto = "🟢" if todo_bien else "🟡"
+
+    texto = f"{punto} {online}/{total} en línea · última revisión {hace}"
+    ancho = 40 + len(texto) * 7
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{ancho}" height="32">
+  <rect width="100%" height="100%" rx="6" fill="#0d0d0d" stroke="{color}" stroke-width="1.5"/>
+  <text x="14" y="20" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="13" fill="#ffffff">{texto}</text>
+</svg>"""
+
+    return Response(
+        content=svg,
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "no-cache, max-age=60"},
+    )
