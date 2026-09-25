@@ -26,6 +26,92 @@ directo a su demo.
   reciente en forma de barras. Cada tarjeta es un enlace directo al proyecto.
 - La lista de proyectos monitoreados está en `backend/app/projects.py`.
 
+## Diagrama de Arquitectura
+
+```mermaid
+flowchart TB
+
+    subgraph Clientes["👤 Cliente"]
+        Browser["🌐 Navegador Web<br/>Panel de monitoreo"]
+    end
+
+    subgraph Vercel["▲ Vercel"]
+        subgraph Frontend["Frontend — React 18 · Vite 6 · TypeScript"]
+            App["App.tsx<br/>Polling cada 60 s"]
+            APIClient["api.ts<br/>fetch()"]
+            Card["ProjectCard<br/>Estado · latencia · %"]
+            Spark["Sparkline<br/>Historial 7 días"]
+            Types["types.ts<br/>Tipos compartidos"]
+        end
+    end
+
+    subgraph Render["☁️ Render (Docker)"]
+        subgraph Backend["Backend — FastAPI + Uvicorn"]
+            Main["main.py<br/>Rutas REST"]
+            Scheduler["APScheduler<br/>Verificación periódica"]
+            Status["status.py<br/>Verificación HTTP"]
+            Projects["projects.py<br/>Lista de URLs"]
+            HTTPX["httpx<br/>Cliente HTTP"]
+            OracleDriver["oracledb<br/>Driver Oracle"]
+        end
+    end
+
+    subgraph OracleCloud["🗄️ Oracle Cloud"]
+        ADB[("Oracle Autonomous Database<br/>Esquema PORTFOLIO_STATUS<br/>Historial · Estado actual")]
+    end
+
+    subgraph Externos["🌐 Proyectos del portafolio"]
+        P1["Proyecto 1"]
+        P2["Proyecto 2"]
+        P3["Proyecto N"]
+    end
+
+    %% ---- Flujo de datos ----
+    Browser -->|HTTPS| App
+    App --> APIClient
+    App --> Card
+    Card --> Spark
+    Card --> Types
+    APIClient -->|REST API| Main
+    Main --> Projects
+    Main --> Status
+    Scheduler --> Status
+    Status --> HTTPX
+    HTTPX -->|GET| P1
+    HTTPX -->|GET| P2
+    HTTPX -->|GET| P3
+    Status --> OracleDriver
+    OracleDriver -->|TCPS| ADB
+    Main --> OracleDriver
+
+    %% ---- Colores de marca (Brand Colors) ----
+    classDef react fill:#61DAFB,stroke:#20232A,stroke-width:2px,color:#20232A,rx:12,ry:12;
+    classDef typescript fill:#3178C6,stroke:#00273F,stroke-width:2px,color:#FFFFFF,rx:12,ry:12;
+    classDef fastapi fill:#009688,stroke:#004D40,stroke-width:2px,color:#FFFFFF,rx:12,ry:12;
+    classDef python fill:#3572A5,stroke:#1A3A5C,stroke-width:2px,color:#FFFFFF,rx:12,ry:12;
+    classDef oracle fill:#F80000,stroke:#7F0000,stroke-width:2px,color:#FFFFFF;
+    classDef vercel fill:#000000,stroke:#333333,stroke-width:2px,color:#FFFFFF,rx:12,ry:12;
+    classDef render fill:#8A05FF,stroke:#4A008C,stroke-width:2px,color:#FFFFFF,rx:12,ry:12;
+    classDef neutral fill:#F5F5F5,stroke:#CCCCCC,stroke-width:1px,color:#333333,rx:10,ry:10;
+
+    class Browser neutral;
+    class App,APIClient,Card,Spark react;
+    class Types typescript;
+    class Main,Scheduler,Status,Projects fastapi;
+    class HTTPX,OracleDriver python;
+    class ADB oracle;
+    class P1,P2,P3 neutral;
+
+    %% ---- Estilos de subgráficos ----
+    style Clientes fill:#FAFAFA,stroke:#DDDDDD,stroke-width:1px,rx:14,ry:14;
+    style Vercel fill:#F0F0F0,stroke:#000000,stroke-width:2px,stroke-dasharray:6 4,rx:16,ry:16;
+    style Frontend fill:#E1F5FE,stroke:#61DAFB,stroke-width:1px,rx:12,ry:12;
+    style Render fill:#F3E8FF,stroke:#8A05FF,stroke-width:2px,stroke-dasharray:6 4,rx:16,ry:16;
+    style Backend fill:#E0F2F1,stroke:#009688,stroke-width:1px,rx:12,ry:12;
+    style OracleCloud fill:#FFF0F0,stroke:#F80000,stroke-width:2px,stroke-dasharray:6 4,rx:16,ry:16;
+    style Externos fill:#FFF8E1,stroke:#FFB300,stroke-width:1px,stroke-dasharray:4 3,rx:14,ry:14;
+```
+
 ## Estructura
 
 ```
