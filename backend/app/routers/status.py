@@ -165,31 +165,86 @@ def get_badge():
 
 QA_EVIDENCIA_API = "https://ta8qn3lx78.execute-api.us-east-1.amazonaws.com/resultados"
 BOGOTA = timezone(timedelta(hours=-5))  # Colombia no tiene horario de verano
-_qa_cache: dict = {"hasta": 0.0, "svg": None}
+_qa_cache: dict = {"hasta": 0.0, "datos": None}
+
+# En qa-evidencia algunos proyectos usan un id distinto al slug de este monitor.
+QA_ID_POR_SLUG = {"gestor-incidentes-ti": "gestorincidentesti"}
+
+
+def _svg(svg: str) -> Response:
+    return Response(content=svg, media_type="image/svg+xml", headers={"Cache-Control": "no-cache, max-age=60"})
+
+
+def _resultados_qa() -> list[dict] | None:
+    """Resultados de la última corrida de qa-evidencia (cacheados 5 min)."""
+    if _qa_cache["datos"] is not None and time.time() < _qa_cache["hasta"]:
+        return _qa_cache["datos"]
+    try:
+        datos = httpx.get(QA_EVIDENCIA_API, timeout=5).json()["resultados"]
+        _qa_cache.update(hasta=time.time() + 300, datos=datos)
+    except Exception:
+        pass
+    return _qa_cache["datos"]
+
+
+def _fecha_bogota(iso: str) -> str:
+    fecha = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    return fecha.astimezone(BOGOTA).strftime("%d/%m/%Y · %H:%M")
+
+
+def _paso(r: dict) -> bool:
+    return r.get("estadoPositivo") == "paso" and r.get("estadoNegativo") == "paso"
 
 
 @router.get("/qa-badge.svg")
 def get_qa_badge():
     """Insignia con la fecha y hora (Bogotá, 24 h) de la última corrida de
-    pruebas E2E de qa-evidencia y cuántos proyectos pasaron. Se cachea 5 min
-    para no consultar la API de qa-evidencia en cada visita al perfil."""
+    pruebas E2E de qa-evidencia y cuántos proyectos pasaron."""
 
-    if _qa_cache["svg"] and time.time() < _qa_cache["hasta"]:
-        svg = _qa_cache["svg"]
+    datos = _resultados_qa()
+    if not datos:
+        return _svg(insignia("Pruebas E2E", "sin datos por ahora", "#6E7681", icono="check", animado=False))
+    ultima = max(datos, key=lambda r: r["fechaCorrida"])["fechaCorrida"]
+    pasaron = sum(1 for r in datos if _paso(r))
+    color = "#58A6FF" if pasaron == len(datos) else "#D29922"
+    return _svg(insignia(f"Última prueba E2E · {_fecha_bogota(ultima)}", f"{pasaron}/{len(datos)} pasaron",
+                         color, icono="check", animado=False))
+
+
+@router.get("/{slug}/badge.svg")
+def get_project_badge(slug: str):
+    """Estado en vivo de un proyecto (para el README de su repositorio):
+    en línea o caído, tiempo de respuesta y disponibilidad de 7 días."""
+
+    if slug not in PROJECTS_BY_SLUG:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+
+    latest = next((row for row in database.fetch_latest_per_project() if row["proyecto"] == slug), None)
+    stats = database.fetch_uptime_percent(slug, dias=7)
+    uptime = f"{stats['uptime_pct']:.1f}% disponible (7 días)" if stats["uptime_pct"] is not None else "sin historial aún"
+
+    if latest is None:
+        svg = insignia("Estado en vivo", "sin datos aún", "#6E7681", animado=False)
+    elif latest["disponible"]:
+        svg = insignia(f"En línea · {latest['tiempo_ms']} ms", uptime, "#3FB950")
     else:
-        try:
-            datos = httpx.get(QA_EVIDENCIA_API, timeout=5).json()["resultados"]
-            ultima = max(datetime.fromisoformat(r["fechaCorrida"].replace("Z", "+00:00")) for r in datos)
-            pasaron = sum(1 for r in datos if r.get("estadoPositivo") == "paso" and r.get("estadoNegativo") == "paso")
-            fecha = ultima.astimezone(BOGOTA).strftime("%d/%m/%Y · %H:%M")
-            color = "#58A6FF" if pasaron == len(datos) else "#D29922"
-            svg = insignia(f"Última prueba E2E · {fecha}", f"{pasaron}/{len(datos)} pasaron", color, icono="check", animado=False)
-            _qa_cache.update(hasta=time.time() + 300, svg=svg)
-        except Exception:
-            svg = _qa_cache["svg"] or insignia("Pruebas E2E", "sin datos por ahora", "#6E7681", icono="check", animado=False)
+        svg = insignia("Fuera de línea", uptime, "#F85149")
+    return _svg(svg)
 
-    return Response(
-        content=svg,
-        media_type="image/svg+xml",
-        headers={"Cache-Control": "no-cache, max-age=60"},
-    )
+
+@router.get("/{slug}/qa-badge.svg")
+def get_project_qa_badge(slug: str):
+    """Fecha y hora (Bogotá, 24 h) de la última prueba E2E de un proyecto y si pasó."""
+
+    if slug not in PROJECTS_BY_SLUG:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+
+    qa_id = QA_ID_POR_SLUG.get(slug, slug)
+    r = next((r for r in (_resultados_qa() or []) if r["proyecto"] == qa_id), None)
+    if r is None:
+        svg = insignia("Pruebas E2E", "sin corrida reciente", "#6E7681", icono="check", animado=False)
+    elif _paso(r):
+        svg = insignia(f"Prueba E2E · {_fecha_bogota(r['fechaCorrida'])}", "pasó", "#58A6FF", icono="check", animado=False)
+    else:
+        svg = insignia(f"Prueba E2E · {_fecha_bogota(r['fechaCorrida'])}", "falló", "#F85149", icono="check", animado=False)
+    return _svg(svg)
