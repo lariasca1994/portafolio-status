@@ -18,12 +18,13 @@ logger = logging.getLogger("portfolio-status.scheduler")
 
 
 def check_one_project(project: dict):
+    url = project.get("check_url", project["url"])
     start = time.perf_counter()
     status_code = None
     disponible = False
     try:
         resp = httpx.get(
-            project["url"],
+            url,
             timeout=settings.HTTP_TIMEOUT_SECONDS,
             follow_redirects=True,
         )
@@ -37,7 +38,7 @@ def check_one_project(project: dict):
     try:
         insert_check(
             proyecto=project["slug"],
-            url=project["url"],
+            url=url,
             status_code=status_code,
             tiempo_ms=tiempo_ms,
             disponible=disponible,

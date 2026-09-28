@@ -7,6 +7,10 @@ marca (el mismo color que ya se usa en el mockup aprobado, en modo
 claro y oscuro) — el frontend lo usa para pintar la barra de historial
 de cada tarjeta.
 
+Opcional: "check_url" es la dirección que se revisa cuando no coincide con la
+del enlace (p. ej. frontend estático en Vercel y API en Render: se enlaza el
+frontend y se revisa el health check de la API, que sí puede caerse).
+
 Para agregar o quitar un proyecto del dashboard, solo edita esta lista.
 """
 
@@ -66,6 +70,14 @@ PROJECTS = [
         "url": "https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws",
         "color_light": "#336791",
         "color_dark": "#5b8fbf",
+    },
+    {
+        "slug": "motor-horarios-oci",
+        "name": "Motor de Horarios",
+        "url": "https://motor-horarios-oci.vercel.app",
+        "check_url": "https://motor-horarios-oci-1.onrender.com/health/db",
+        "color_light": "#00758f",
+        "color_dark": "#5cc6de",
     },
 ]
 
