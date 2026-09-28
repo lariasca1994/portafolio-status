@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from .. import database
+from ..badges import insignia
 from ..projects import PROJECTS, PROJECTS_BY_SLUG
 
 router = APIRouter(prefix="/api/status", tags=["status"])
@@ -56,11 +57,15 @@ def get_history(slug: str, puntos: int = 14):
             for row in history
         ],
     }
-from datetime import datetime, timezone
+import time
+from datetime import datetime, timedelta, timezone
+
+import httpx
 
 from fastapi import APIRouter, HTTPException, Response
 
 from .. import database
+from ..badges import insignia
 from ..projects import PROJECTS, PROJECTS_BY_SLUG
 
 router = APIRouter(prefix="/api/status", tags=["status"])
@@ -138,21 +143,50 @@ def get_badge():
 
     if ultima:
         segundos = int((datetime.now(timezone.utc) - ultima.replace(tzinfo=timezone.utc)).total_seconds())
-        hace = f"hace {segundos}s" if segundos < 60 else f"hace {segundos // 60}min"
+        if segundos < 60:
+            hace = f"hace {segundos} s"
+        elif segundos < 3600:
+            hace = f"hace {segundos // 60} min"
+        else:
+            hace = f"hace {segundos // 3600} h"
     else:
         hace = "sin datos aún"
 
     todo_bien = online == total
-    color = "#0ca30c" if todo_bien else "#fab219"
-    punto = "🟢" if todo_bien else "🟡"
+    color = "#3FB950" if todo_bien else "#D29922"
+    svg = insignia(f"{online}/{total} proyectos en línea", f"revisado {hace}", color)
 
-    texto = f"{punto} {online}/{total} en línea · última revisión {hace}"
-    ancho = 40 + len(texto) * 7
+    return Response(
+        content=svg,
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "no-cache, max-age=60"},
+    )
 
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{ancho}" height="32">
-  <rect width="100%" height="100%" rx="6" fill="#0d0d0d" stroke="{color}" stroke-width="1.5"/>
-  <text x="14" y="20" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="13" fill="#ffffff">{texto}</text>
-</svg>"""
+
+QA_EVIDENCIA_API = "https://ta8qn3lx78.execute-api.us-east-1.amazonaws.com/resultados"
+BOGOTA = timezone(timedelta(hours=-5))  # Colombia no tiene horario de verano
+_qa_cache: dict = {"hasta": 0.0, "svg": None}
+
+
+@router.get("/qa-badge.svg")
+def get_qa_badge():
+    """Insignia con la fecha y hora (Bogotá, 24 h) de la última corrida de
+    pruebas E2E de qa-evidencia y cuántos proyectos pasaron. Se cachea 5 min
+    para no consultar la API de qa-evidencia en cada visita al perfil."""
+
+    if _qa_cache["svg"] and time.time() < _qa_cache["hasta"]:
+        svg = _qa_cache["svg"]
+    else:
+        try:
+            datos = httpx.get(QA_EVIDENCIA_API, timeout=5).json()["resultados"]
+            ultima = max(datetime.fromisoformat(r["fechaCorrida"].replace("Z", "+00:00")) for r in datos)
+            pasaron = sum(1 for r in datos if r.get("estadoPositivo") == "paso" and r.get("estadoNegativo") == "paso")
+            fecha = ultima.astimezone(BOGOTA).strftime("%d/%m/%Y · %H:%M")
+            color = "#58A6FF" if pasaron == len(datos) else "#D29922"
+            svg = insignia(f"Última prueba E2E · {fecha}", f"{pasaron}/{len(datos)} pasaron", color, icono="check", animado=False)
+            _qa_cache.update(hasta=time.time() + 300, svg=svg)
+        except Exception:
+            svg = _qa_cache["svg"] or insignia("Pruebas E2E", "sin datos por ahora", "#6E7681", icono="check", animado=False)
 
     return Response(
         content=svg,
