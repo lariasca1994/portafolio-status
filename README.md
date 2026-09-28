@@ -1,16 +1,33 @@
 # Portfolio Status
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
-![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black)
-![Oracle DB](https://img.shields.io/badge/Oracle_DB-F80000?style=flat&logo=oracle&logoColor=white)
-![Render](https://img.shields.io/badge/Render-000000?style=flat&logo=render&logoColor=white)
-![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat&logo=vercel&logoColor=white)
+<p>
+  <a href="https://frontend-nine-topaz-99.vercel.app"><img src="docs/demo-badge.svg" alt="Abrir el dashboard en vivo" height="32"></a>
+  <a href="https://frontend-nine-topaz-99.vercel.app"><img src="https://portafolio-status.onrender.com/api/status/badge.svg" alt="Proyectos en línea ahora mismo" height="32"></a>
+  <a href="https://d4i3vsgw7xwmh.cloudfront.net"><img src="https://portafolio-status.onrender.com/api/status/qa-badge.svg" alt="Fecha y resultado de la última corrida E2E" height="32"></a>
+</p>
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Oracle DB](https://img.shields.io/badge/Oracle_DB-F80000?style=for-the-badge&logo=oracle&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 Panel en vivo que revisa automáticamente, cada pocos minutos, si cada uno de
 los proyectos del portafolio sigue en línea y qué tan rápido responde — con
 historial de disponibilidad y una tarjeta por proyecto, cada una con enlace
 directo a su demo.
+
+### En pocas palabras
+
+- **Qué hace:** vigila que todos los proyectos del portafolio estén funcionando.
+  Cada pocos minutos visita la dirección de cada uno, anota si respondió y en
+  cuánto tiempo, y guarda ese historial.
+- **Dónde se ve:** en el [dashboard](https://frontend-nine-topaz-99.vercel.app/)
+  y en las insignias en vivo que aparecen en el perfil de GitHub y en el README
+  de cada proyecto (estado, tiempo de respuesta, disponibilidad y última prueba
+  E2E).
+- **Cómo correrlo:** ve a [Cómo correrlo en local](#cómo-correrlo-en-local).
 
 ## Demo en vivo
 
@@ -26,91 +43,29 @@ directo a su demo.
   reciente en forma de barras. Cada tarjeta es un enlace directo al proyecto.
 - La lista de proyectos monitoreados está en `backend/app/projects.py`.
 
-## Diagrama de Arquitectura
+## Arquitectura
 
-```mermaid
-flowchart TB
+<p align="center">
+  <img src="docs/arquitectura.svg" alt="Diagrama de arquitectura: dashboard React en Vercel, API FastAPI y monitor en Render, Oracle Autonomous Database, proyectos monitoreados y API de resultados de qa-evidencia en AWS" width="100%">
+</p>
 
-    subgraph Clientes["👤 Cliente"]
-        Browser["🌐 Navegador Web<br/>Panel de monitoreo"]
-    end
+- **Render** corre el backend FastAPI: un monitor (APScheduler + httpx) revisa
+  cada proyecto cada pocos minutos, y la API expone el estado y las insignias SVG.
+- **Oracle Autonomous Database** guarda cada revisión; de ahí salen el % de
+  disponibilidad y el tiempo promedio de los últimos 7 días.
+- **Vercel** sirve el dashboard React, que consulta la API cada 60 segundos.
+- Las insignias de **última prueba E2E** leen la API de resultados de
+  qa-evidencia (AWS) y muestran fecha y hora de Bogotá en formato 24 h.
 
-    subgraph Vercel["▲ Vercel"]
-        subgraph Frontend["Frontend — React 18 · Vite 6 · TypeScript"]
-            App["App.tsx<br/>Polling cada 60 s"]
-            APIClient["api.ts<br/>fetch()"]
-            Card["ProjectCard<br/>Estado · latencia · %"]
-            Spark["Sparkline<br/>Historial 7 días"]
-            Types["types.ts<br/>Tipos compartidos"]
-        end
-    end
+#### Insignias disponibles
 
-    subgraph Render["☁️ Render (Docker)"]
-        subgraph Backend["Backend — FastAPI + Uvicorn"]
-            Main["main.py<br/>Rutas REST"]
-            Scheduler["APScheduler<br/>Verificación periódica"]
-            Status["status.py<br/>Verificación HTTP"]
-            Projects["projects.py<br/>Lista de URLs"]
-            HTTPX["httpx<br/>Cliente HTTP"]
-            OracleDriver["oracledb<br/>Driver Oracle"]
-        end
-    end
+| Insignia | URL |
+|---|---|
+| Resumen (`8/8 proyectos en línea`) | `/api/status/badge.svg` |
+| Última corrida E2E de todo el portafolio | `/api/status/qa-badge.svg` |
+| Estado de un proyecto | `/api/status/{slug}/badge.svg` |
+| Última prueba E2E de un proyecto | `/api/status/{slug}/qa-badge.svg` |
 
-    subgraph OracleCloud["🗄️ Oracle Cloud"]
-        ADB[("Oracle Autonomous Database<br/>Esquema PORTFOLIO_STATUS<br/>Historial · Estado actual")]
-    end
-
-    subgraph Externos["🌐 Proyectos del portafolio"]
-        P1["Proyecto 1"]
-        P2["Proyecto 2"]
-        P3["Proyecto N"]
-    end
-
-    %% ---- Flujo de datos ----
-    Browser -->|HTTPS| App
-    App --> APIClient
-    App --> Card
-    Card --> Spark
-    Card --> Types
-    APIClient -->|REST API| Main
-    Main --> Projects
-    Main --> Status
-    Scheduler --> Status
-    Status --> HTTPX
-    HTTPX -->|GET| P1
-    HTTPX -->|GET| P2
-    HTTPX -->|GET| P3
-    Status --> OracleDriver
-    OracleDriver -->|TCPS| ADB
-    Main --> OracleDriver
-
-    %% ---- Colores de marca (Brand Colors) ----
-    classDef react fill:#61DAFB,stroke:#20232A,stroke-width:2px,color:#20232A,rx:12,ry:12;
-    classDef typescript fill:#3178C6,stroke:#00273F,stroke-width:2px,color:#FFFFFF,rx:12,ry:12;
-    classDef fastapi fill:#009688,stroke:#004D40,stroke-width:2px,color:#FFFFFF,rx:12,ry:12;
-    classDef python fill:#3572A5,stroke:#1A3A5C,stroke-width:2px,color:#FFFFFF,rx:12,ry:12;
-    classDef oracle fill:#F80000,stroke:#7F0000,stroke-width:2px,color:#FFFFFF;
-    classDef vercel fill:#000000,stroke:#333333,stroke-width:2px,color:#FFFFFF,rx:12,ry:12;
-    classDef render fill:#8A05FF,stroke:#4A008C,stroke-width:2px,color:#FFFFFF,rx:12,ry:12;
-    classDef neutral fill:#F5F5F5,stroke:#CCCCCC,stroke-width:1px,color:#333333,rx:10,ry:10;
-
-    class Browser neutral;
-    class App,APIClient,Card,Spark react;
-    class Types typescript;
-    class Main,Scheduler,Status,Projects fastapi;
-    class HTTPX,OracleDriver python;
-    class ADB oracle;
-    class P1,P2,P3 neutral;
-
-    %% ---- Estilos de subgráficos ----
-    style Clientes fill:#FAFAFA,stroke:#DDDDDD,stroke-width:1px,rx:14,ry:14;
-    style Vercel fill:#F0F0F0,stroke:#000000,stroke-width:2px,stroke-dasharray:6 4,rx:16,ry:16;
-    style Frontend fill:#E1F5FE,stroke:#61DAFB,stroke-width:1px,rx:12,ry:12;
-    style Render fill:#F3E8FF,stroke:#8A05FF,stroke-width:2px,stroke-dasharray:6 4,rx:16,ry:16;
-    style Backend fill:#E0F2F1,stroke:#009688,stroke-width:1px,rx:12,ry:12;
-    style OracleCloud fill:#FFF0F0,stroke:#F80000,stroke-width:2px,stroke-dasharray:6 4,rx:16,ry:16;
-    style Externos fill:#FFF8E1,stroke:#FFB300,stroke-width:1px,stroke-dasharray:4 3,rx:14,ry:14;
-```
 
 ## Estructura
 
