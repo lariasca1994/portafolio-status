@@ -108,7 +108,7 @@ repo (requiere tener el wallet de Oracle ya descomprimido en
 
 ## Despliegue
 
-- **Base de datos:** Oracle Autonomous Database (Always Free).
+- **Base de datos:** Oracle Autonomous Database.
 - **Backend:** Render, como servicio Docker (usa `backend/Dockerfile`); el
   wallet de Oracle se pasa codificado en base64 en la variable de entorno
   `ORACLE_WALLET_B64`, ya que Render no tiene disco persistente.
