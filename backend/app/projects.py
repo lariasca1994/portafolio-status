@@ -79,6 +79,16 @@ PROJECTS = [
         "color_light": "#00758f",
         "color_dark": "#5cc6de",
     },
+    {
+        # Se revisa la interfaz en Vercel (estática): consultar la API cada pocos
+        # minutos impediría que su contenedor y sus bases se pausen sin uso. La API y
+        # el login con MFA los cubren las corridas E2E de qa-evidencia.
+        "slug": "qalabspbvi",
+        "name": "QALabSPBVI",
+        "url": "https://qalabspbvi.vercel.app",
+        "color_light": "#b7791f",
+        "color_dark": "#f5b301",
+    },
 ]
 
 PROJECTS_BY_SLUG = {p["slug"]: p for p in PROJECTS}
