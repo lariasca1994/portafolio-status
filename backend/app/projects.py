@@ -99,6 +99,15 @@ PROJECTS = [
         "color_light": "#b7791f",
         "color_dark": "#f5b301",
     },
+    {
+        # Se revisa la interfaz estática en Vercel: consultar la API (Render, gratis)
+        # cada pocos minutos no la dejaría dormir. La API la cubre qa-evidencia.
+        "slug": "syspulse",
+        "name": "SysPulse",
+        "url": "https://syspulse.vercel.app",
+        "color_light": "#0b3a7e",
+        "color_dark": "#00a9e0",
+    },
 ]
 
 PROJECTS_BY_SLUG = {p["slug"]: p for p in PROJECTS}
