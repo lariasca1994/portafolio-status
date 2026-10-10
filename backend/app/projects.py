@@ -11,6 +11,11 @@ Opcional: "check_url" es la dirección que se revisa cuando no coincide con la
 del enlace (p. ej. frontend estático en Vercel y API en Render: se enlaza el
 frontend y se revisa el health check de la API, que sí puede caerse).
 
+Opcional: "revisar_horas" (horas de Bogotá) reemplaza la revisión cada pocos
+minutos por revisiones a horas fijas. Se usa en los proyectos que escalan a cero
+y tienen bases sin servidor con cuota gratuita (Azure Container Apps + Azure SQL):
+una visita cada 5 minutos no los deja dormir y agota la cuota a mitad de mes.
+
 Para agregar o quitar un proyecto del dashboard, solo edita esta lista.
 """
 
@@ -33,6 +38,9 @@ PROJECTS = [
         "slug": "reservas-corferias",
         "name": "reservas-corferias",
         "url": "https://reservas-corferias.blueocean-86680030.eastus.azurecontainerapps.io",
+        # /up responde sin tocar la base: despierta solo el contenedor.
+        "check_url": "https://reservas-corferias.blueocean-86680030.eastus.azurecontainerapps.io/up",
+        "revisar_horas": [8, 20],
         "color_light": "#0078d4",
         "color_dark": "#3b9ef0",
     },
@@ -40,6 +48,7 @@ PROJECTS = [
         "slug": "gestor-incidentes-ti",
         "name": "GestorIncidentesTI",
         "url": "https://gestorincidentesti.livelywater-fe29fe0b.australiaeast.azurecontainerapps.io",
+        "revisar_horas": [8, 20],
         "color_light": "#0891b2",
         "color_dark": "#22d3ee",
     },
@@ -61,6 +70,7 @@ PROJECTS = [
         "slug": "calidad-afiliaciones",
         "name": "Calidad-Afiliaciones",
         "url": "https://calidad-afiliaciones.blueocean-86680030.eastus.azurecontainerapps.io",
+        "revisar_horas": [8, 20],
         "color_light": "#f2960c",
         "color_dark": "#fdba3d",
     },

@@ -48,8 +48,17 @@ def check_one_project(project: dict):
 
 
 def check_all_projects():
+    """Proyectos que se revisan cada pocos minutos (sin "revisar_horas")."""
     for project in PROJECTS:
-        check_one_project(project)
+        if not project.get("revisar_horas"):
+            check_one_project(project)
+
+
+def check_scheduled_projects(hora: int):
+    """Proyectos con "revisar_horas": solo a esas horas, para que puedan dormir."""
+    for project in PROJECTS:
+        if hora in project.get("revisar_horas", []):
+            check_one_project(project)
 
 
 def start_scheduler() -> BackgroundScheduler:
@@ -60,5 +69,15 @@ def start_scheduler() -> BackgroundScheduler:
         minutes=settings.CHECK_INTERVAL_MINUTES,
         id="check_all_projects",
     )
+    horas = sorted({h for p in PROJECTS for h in p.get("revisar_horas", [])})
+    for hora in horas:
+        scheduler.add_job(
+            check_scheduled_projects,
+            "cron",
+            hour=hora,
+            minute=0,
+            args=[hora],
+            id=f"check_scheduled_{hora}",
+        )
     scheduler.start()
     return scheduler
