@@ -118,11 +118,12 @@ a.card:hover { border-color: var(--text-2); transform: translateY(-1px); }
 .spark-caption { display: flex; justify-content: space-between; margin-top: 5px; }
 .spark-caption span { font-size: 9.5px; color: var(--muted); }
 
+/* Texto corrido: en flex, cada fragmento era una columna y en celular desbordaba. */
 .stack-footer {
-  display: flex; align-items: center; gap: 8px;
+  line-height: 1.6;
   margin-top: 28px; padding-top: 18px;
   border-top: 1px solid var(--border);
   color: var(--muted); font-size: 12.5px;
 }
 .stack-footer b { color: var(--text-2); font-weight: 600; }
-.stack-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--oracle); flex-shrink: 0; }
+.stack-dot { display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--oracle); vertical-align: middle; }
