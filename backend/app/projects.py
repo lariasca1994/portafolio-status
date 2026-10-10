@@ -19,6 +19,15 @@ una visita cada 5 minutos no los deja dormir y agota la cuota a mitad de mes.
 Para agregar o quitar un proyecto del dashboard, solo edita esta lista.
 """
 
+# Horas (Bogotá) en que se revisa todo lo que puede dormir: contenedores que escalan a
+# cero (Azure, Cloud Run), Lambdas, backends gratuitos de Render y sus bases (Azure SQL,
+# Neon, OCI). Cuatro revisiones al día dejan dormir cada servicio el resto del tiempo:
+#   Render ≈ 15 min despierto por revisión → ≈ 31 h/mes por servicio (de 750 h gratis)
+#   Azure Container Apps ≈ 6 min por revisión → ≈ 12 h/mes por app
+#   Neon / Azure SQL: las rutas revisadas no tocan la base o la despiertan pocos minutos
+# Lo estático (Vercel) no duerme ni cuesta: se sigue revisando cada pocos minutos.
+HORAS_DORMIDOS = [8, 12, 16, 20]
+
 PROJECTS = [
     {
         "slug": "colombiatech2",
@@ -29,6 +38,7 @@ PROJECTS = [
     },
     {
         "slug": "prpagos",
+        "revisar_horas": HORAS_DORMIDOS,
         "name": "PRPagos",
         "url": "https://prpagos-web-1087929107584.southamerica-east1.run.app",
         "color_light": "#c1452c",
@@ -36,24 +46,25 @@ PROJECTS = [
     },
     {
         "slug": "reservas-corferias",
+        "revisar_horas": HORAS_DORMIDOS,
         "name": "reservas-corferias",
         "url": "https://reservas-corferias.blueocean-86680030.eastus.azurecontainerapps.io",
         # /up responde sin tocar la base: despierta solo el contenedor.
         "check_url": "https://reservas-corferias.blueocean-86680030.eastus.azurecontainerapps.io/up",
-        "revisar_horas": [8, 20],
         "color_light": "#0078d4",
         "color_dark": "#3b9ef0",
     },
     {
         "slug": "gestor-incidentes-ti",
+        "revisar_horas": HORAS_DORMIDOS,
         "name": "GestorIncidentesTI",
         "url": "https://gestorincidentesti.livelywater-fe29fe0b.australiaeast.azurecontainerapps.io",
-        "revisar_horas": [8, 20],
         "color_light": "#0891b2",
         "color_dark": "#22d3ee",
     },
     {
         "slug": "gestor-casos-qa",
+        "revisar_horas": HORAS_DORMIDOS,
         "name": "gestor-casos-qa",
         "url": "https://immxew65sfxj7nubwzlszdimfi0qegzc.lambda-url.us-east-1.on.aws",
         "color_light": "#0d9488",
@@ -61,6 +72,7 @@ PROJECTS = [
     },
     {
         "slug": "taskflow",
+        "revisar_horas": HORAS_DORMIDOS,
         "name": "TaskFlow",
         "url": "https://taskflow-812302804238.us-central1.run.app",
         "color_light": "#0e6b45",
@@ -68,14 +80,15 @@ PROJECTS = [
     },
     {
         "slug": "calidad-afiliaciones",
+        "revisar_horas": HORAS_DORMIDOS,
         "name": "Calidad-Afiliaciones",
         "url": "https://calidad-afiliaciones.blueocean-86680030.eastus.azurecontainerapps.io",
-        "revisar_horas": [8, 20],
         "color_light": "#f2960c",
         "color_dark": "#fdba3d",
     },
     {
         "slug": "verificador-api",
+        "revisar_horas": HORAS_DORMIDOS,
         "name": "Verificador API",
         "url": "https://eofvlnitsiuodup4eywdcenxwu0adgbz.lambda-url.us-east-1.on.aws",
         "color_light": "#336791",
@@ -83,6 +96,7 @@ PROJECTS = [
     },
     {
         "slug": "motor-horarios-oci",
+        "revisar_horas": HORAS_DORMIDOS,
         "name": "Motor de Horarios",
         "url": "https://motor-horarios-oci.vercel.app",
         "check_url": "https://motor-horarios-oci-1.onrender.com/health/db",

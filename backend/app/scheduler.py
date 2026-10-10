@@ -17,8 +17,23 @@ from .projects import PROJECTS
 logger = logging.getLogger("portfolio-status.scheduler")
 
 
+# Tiempo para que un servicio dormido arranque (contenedor en frío, Render, base que se reanuda).
+TIMEOUT_DESPERTAR_SEGUNDOS = 90.0
+
+
+def _despertar(url: str) -> None:
+    """Petición previa que no se registra: así la medición no cuenta el arranque en frío
+    (ni lo marca como caído por tardar), y las estadísticas reflejan el servicio despierto."""
+    try:
+        httpx.get(url, timeout=TIMEOUT_DESPERTAR_SEGUNDOS, follow_redirects=True)
+    except httpx.RequestError:
+        pass
+
+
 def check_one_project(project: dict):
     url = project.get("check_url", project["url"])
+    if project.get("revisar_horas"):
+        _despertar(url)
     start = time.perf_counter()
     status_code = None
     disponible = False
