@@ -133,6 +133,14 @@ Cada insignia es una imagen SVG que se puede enlazar desde cualquier README:
 Agrega una entrada en `backend/app/projects.py` con su `slug`, nombre para mostrar, URL
 y color, y vuelve a desplegar el backend.
 
+### Si el servicio no responde
+
+Si la API o la base de datos (Oracle Autonomous Database) no responden, la aplicación muestra una **pantalla de mantenimiento** con los colores del proyecto, en lugar de un error genérico o de una página que no carga.
+
+- **Servidor:** Los errores de conexión a Oracle responden **503** con `mantenimiento: true` en vez de un 500.
+- **Pantalla:** `frontend/src/api.ts` distingue la caída (sin conexión o 502/503/504) de otros errores, y `App.tsx` muestra la tarjeta de mantenimiento en lugar del resumen y la grilla.
+- **Recuperación:** Reintenta cada 15 s y vuelve solo al tablero con la primera respuesta buena, sin recargar. No reintenta acciones del usuario, para no duplicarlas.
+
 ---
 
 ## 6. Instalación para pruebas

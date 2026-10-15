@@ -94,3 +94,5 @@ planes gratuitos que se duermen sin uso; la primera visita los despierta y tarda
 
 **¿Puedo agregar mi proyecto?** El monitoreo cubre solo los proyectos de este portafolio
 (`backend/app/projects.py`).
+
+**¿Qué significa la pantalla "Estamos en mantenimiento"?** El servicio o su base de datos no están respondiendo en ese momento. No se perdió nada: el historial de disponibilidad siguen guardados, y ninguna acción quedó a medias (si no viste la confirmación, no se guardó). La pantalla se actualiza sola y vuelve a la normalidad apenas el servicio responda; también puedes reintentar más tarde.
