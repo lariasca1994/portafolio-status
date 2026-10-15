@@ -1,8 +1,10 @@
 import logging
 import threading
 
-from fastapi import FastAPI
+import oracledb
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from .config import settings
 from .routers import status
@@ -23,6 +25,16 @@ app.add_middleware(
 )
 
 app.include_router(status.router)
+
+
+@app.exception_handler(oracledb.OperationalError)
+@app.exception_handler(oracledb.InterfaceError)
+def base_no_disponible(_request: Request, error: Exception):
+    """Oracle apagado o inalcanzable: 503 con marca de mantenimiento (el panel
+    muestra su pantalla de mantenimiento) en vez de un 500 genérico."""
+    logging.getLogger(__name__).warning("Oracle no disponible: %s", type(error).__name__)
+    return JSONResponse(status_code=503, headers={"Retry-After": "300"},
+                        content={"detail": "servicio en mantenimiento", "mantenimiento": True})
 
 
 @app.get("/")

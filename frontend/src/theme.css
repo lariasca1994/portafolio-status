@@ -127,3 +127,17 @@ a.card:hover { border-color: var(--text-2); transform: translateY(-1px); }
 }
 .stack-footer b { color: var(--text-2); font-weight: 600; }
 .stack-dot { display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 50%; background: var(--oracle); vertical-align: middle; }
+/* Pantalla de mantenimiento (App.tsx): reemplaza resumen y grilla mientras la API no responde. */
+.mantenimiento { margin: 8px auto 32px; max-width: 560px; padding: 32px 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.mantenimiento h2 { font-size: 22px; margin: 0 0 10px; color: var(--text-1); }
+.mantenimiento .eyebrow { color: var(--oracle); }
+.mantenimiento ul { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 8px; color: var(--text-1); font-size: 14.5px; }
+.mantenimiento li { display: flex; gap: 10px; align-items: baseline; }
+.mantenimiento li::before { content: ""; flex: 0 0 8px; height: 8px; border-radius: 50%; background: var(--oracle); }
+.mantenimiento-icono { display: flex; gap: 6px; align-items: flex-end; height: 36px; margin-bottom: 18px; }
+.mantenimiento-icono span { width: 11px; border-radius: 4px; background: var(--oracle); animation: mantenimiento-pulso 1.6s ease-in-out infinite; }
+.mantenimiento-icono span:nth-child(1) { height: 50%; }
+.mantenimiento-icono span:nth-child(2) { height: 100%; animation-delay: .2s; }
+.mantenimiento-icono span:nth-child(3) { height: 70%; animation-delay: .4s; }
+@keyframes mantenimiento-pulso { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mantenimiento-icono span { animation: none; } }

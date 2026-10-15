@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { fetchHistory, fetchStatus } from "./api";
+import { fetchHistory, fetchStatus, MantenimientoError } from "./api";
 import type { HistoryPoint, ProjectStatus } from "./types";
 import { ProjectCard } from "./components/ProjectCard";
 
 const REFRESH_MS = 60_000;
+// En mantenimiento se reintenta más seguido; con la primera respuesta buena vuelve el tablero.
+const REINTENTO_MANTENIMIENTO_MS = 15_000;
 
 function useIsDark(): boolean {
   const [isDark, setIsDark] = useState(
@@ -25,11 +27,13 @@ export default function App() {
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   const systemIsDark = useIsDark();
   const isDark = theme ? theme === "dark" : systemIsDark;
+  const [enMantenimiento, setEnMantenimiento] = useState(false);
 
   async function load() {
     const status = await fetchStatus();
     setProjects(status.projects);
     setLastUpdated(new Date());
+    setEnMantenimiento(false);
 
     const entries = await Promise.all(
       status.projects.map(async (p) => {
@@ -40,11 +44,18 @@ export default function App() {
     setHistories(Object.fromEntries(entries));
   }
 
+  function cargar() {
+    load().catch((error) => {
+      if (error instanceof MantenimientoError) setEnMantenimiento(true);
+      else console.error(error);
+    });
+  }
+
   useEffect(() => {
-    load().catch(console.error);
-    const id = setInterval(() => load().catch(console.error), REFRESH_MS);
+    cargar();
+    const id = setInterval(cargar, enMantenimiento ? REINTENTO_MANTENIMIENTO_MS : REFRESH_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [enMantenimiento]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
@@ -83,6 +94,23 @@ export default function App() {
         con si algo anda mal.
       </div>
 
+      {enMantenimiento ? (
+        <section className="mantenimiento" role="status" aria-live="polite">
+          <div className="mantenimiento-icono" aria-hidden="true"><span /><span /><span /></div>
+          <p className="eyebrow">Portfolio Status</p>
+          <h2>Estamos en mantenimiento</h2>
+          <p className="sub">
+            El servicio de monitoreo no está respondiendo en este momento, así que no se puede mostrar el estado
+            de los proyectos.
+          </p>
+          <ul>
+            <li>El historial de disponibilidad sigue guardado.</li>
+            <li>Los proyectos del portafolio no dependen de este panel: pueden estar funcionando con normalidad.</li>
+            <li>El panel vuelve solo apenas el servicio responda.</li>
+          </ul>
+        </section>
+      ) : (
+      <>
       <div className="summary">
         <div>
           <span className="figure">{online}</span>
@@ -98,6 +126,8 @@ export default function App() {
           <ProjectCard key={p.slug} project={p} history={histories[p.slug] ?? []} isDark={isDark} />
         ))}
       </div>
+      </>
+      )}
 
       <footer className="stack-footer">
         <span className="stack-dot" />
