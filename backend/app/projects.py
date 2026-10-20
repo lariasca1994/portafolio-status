@@ -99,7 +99,7 @@ PROJECTS = [
         "revisar_horas": HORAS_DORMIDOS,
         "name": "Motor de Horarios",
         "url": "https://motor-horarios-oci.vercel.app",
-        "check_url": "https://motor-horarios-oci-1.onrender.com/health/db",
+        "check_url": "https://motor-horarios-api.onrender.com/health/db",
         "color_light": "#00758f",
         "color_dark": "#5cc6de",
     },
