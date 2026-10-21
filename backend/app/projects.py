@@ -74,7 +74,7 @@ PROJECTS = [
         "slug": "taskflow",
         "revisar_horas": HORAS_DORMIDOS,
         "name": "TaskFlow",
-        "url": "https://taskflow-812302804238.us-central1.run.app",
+        "url": "https://taskflow-812302804238.us-east4.run.app",
         "color_light": "#0e6b45",
         "color_dark": "#4c9a73",
     },
