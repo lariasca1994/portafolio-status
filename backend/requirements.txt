@@ -4,3 +4,5 @@ oracledb==2.5.1
 httpx==0.28.1
 apscheduler==3.11.0
 python-dotenv==1.0.1
+# CA de confianza sin los intermedios comprometidos de eMudhra (octubre 2026).
+certifi>=2026.10.19
