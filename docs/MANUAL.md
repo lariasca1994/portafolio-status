@@ -136,6 +136,8 @@ Comprobado en el código del proyecto (`backend/app/main.py`, `config.py`, `data
   variable de entorno de Render y se descomprime en un directorio temporal al arrancar; nunca
   está en el repositorio.
 - **Secretos en variables de entorno**, nunca en el código.
+- **Al día en seguridad:** el runtime, el sistema y las dependencias se mantienen con los últimos
+  parches y se revisan periódicamente.
 
 ## 6. Agradecimientos
 
