@@ -138,7 +138,8 @@ Comprobado en el código del proyecto (`backend/app/main.py`, `config.py`, `data
 - **Secretos en variables de entorno**, nunca en el código.
 - **Runtime con parches de seguridad:** el backend usa Python 3.12.15 y certifi 2026.10.19 o
   posterior, que deja de confiar en los certificados intermedios comprometidos de eMudhra; el
-  frontend, Node.js 22.23.4.
+  frontend, Node.js 22.23.4. La imagen tampoco confía en las raíces emSign ni «AAA Certificate
+  Services» que firmaron los intermedios comprometidos de eMudhra (la misma mitigación que publicó Red Hat).
 
 ## 6. Agradecimientos
 
