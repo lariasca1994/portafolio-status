@@ -109,7 +109,7 @@ PROJECTS = [
         # el login con MFA los cubren las corridas E2E de qa-evidencia.
         "slug": "qalabspbvi",
         "name": "QALabSPBVI",
-        "url": "https://qalabspbvi.vercel.app",
+        "url": "https://qalabspbvi-prod.vercel.app",
         "color_light": "#b7791f",
         "color_dark": "#f5b301",
     },
