@@ -40,7 +40,7 @@ PROJECTS = [
         "slug": "prpagos",
         "revisar_horas": HORAS_DORMIDOS,
         "name": "PRPagos",
-        "url": "https://prpagos-web-1087929107584.southamerica-east1.run.app",
+        "url": "https://prpagos-web-1087929107584.us-east4.run.app",
         "color_light": "#c1452c",
         "color_dark": "#e2734f",
     },
