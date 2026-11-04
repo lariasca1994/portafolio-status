@@ -122,6 +122,18 @@ PROJECTS = [
         "color_light": "#0b3a7e",
         "color_dark": "#00a9e0",
     },
+    {
+        # Se enlaza el portal (Vercel) y se revisa la salud del servicio de identidad a
+        # horas fijas: esa ruta no toca la base, así que Azure SQL sigue pausada. Pagos,
+        # mesa de ayuda y los flujos completos los cubre qa-evidencia.
+        "slug": "exponexo",
+        "revisar_horas": HORAS_DORMIDOS,
+        "name": "ExpoNexo",
+        "url": "https://exponexo-portal.vercel.app",
+        "check_url": "https://exponexo-identidad-reservas.bravepebble-921b10d2.westus2.azurecontainerapps.io/salud",
+        "color_light": "#0284c7",
+        "color_dark": "#38bdf8",
+    },
 ]
 
 PROJECTS_BY_SLUG = {p["slug"]: p for p in PROJECTS}
