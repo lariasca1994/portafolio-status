@@ -68,7 +68,7 @@ export default function App() {
       <header>
         <div>
           <p className="eyebrow">Portafolio de Luis Felipe Arias</p>
-          <h1>Estado de mis proyectos</h1>
+          <h1>Monitor de disponibilidad de servicios</h1>
           <p className="sub">
             Panel de monitoreo en tiempo real: cada pocos minutos se valida si cada proyecto del
             portafolio sigue disponible y cuánto tarda en responder. Haz clic en cualquier tarjeta

@@ -1,5 +1,6 @@
 import type { HistoryPoint, ProjectStatus } from "../types";
 import { Sparkline } from "./Sparkline";
+import { nombreVisible } from "../nombres";
 
 interface Props {
   project: ProjectStatus;
@@ -27,7 +28,7 @@ export function ProjectCard({ project, history, isDark }: Props) {
         <div>
           <p className="proj-name">
             <span className="swatch" style={{ background: brandColor }} />
-            {project.name}
+            {nombreVisible(project.slug, project.name)}
           </p>
         </div>
         <span className={`status-pill ${statusClass}`}>
