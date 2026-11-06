@@ -97,7 +97,7 @@ export default function App() {
       {enMantenimiento ? (
         <section className="mantenimiento" role="status" aria-live="polite">
           <div className="mantenimiento-icono" aria-hidden="true"><span /><span /><span /></div>
-          <p className="eyebrow">Portfolio Status</p>
+          <p className="eyebrow">Monitor de disponibilidad de servicios</p>
           <h2>Estamos en mantenimiento</h2>
           <p className="sub">
             El servicio de monitoreo no está respondiendo en este momento, así que no se puede mostrar el estado
