@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { fetchHistory, fetchStatus, MantenimientoError } from "./api";
 import type { HistoryPoint, ProjectStatus } from "./types";
 import { ProjectCard } from "./components/ProjectCard";
+import { Anillo } from "./components/Anillo";
+import { estaVigente } from "./vigencia";
 
 const REFRESH_MS = 60_000;
 // En mantenimiento se reintenta más seguido; con la primera respuesta buena vuelve el tablero.
@@ -61,7 +63,22 @@ export default function App() {
     document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
   }, [isDark]);
 
-  const online = projects.filter((p) => p.disponible).length;
+  // Solo cuenta como "ahora" lo revisado en las últimas 24 horas.
+  const vigentes = projects.filter((p) => p.disponible != null && estaVigente(p.checked_at));
+  const online = vigentes.filter((p) => p.disponible).length;
+  const conDatos = vigentes;
+  const tiempos = projects.filter((p) => p.disponible && p.tiempo_ms != null).map((p) => p.tiempo_ms as number);
+  const promedioMs = tiempos.length ? Math.round(tiempos.reduce((a, b) => a + b, 0) / tiempos.length) : null;
+  const semanal = projects.length ? projects.reduce((a, p) => a + (p.uptime_pct_7d || 0), 0) / projects.length : 0;
+  const pctAhora = conDatos.length ? (online / conDatos.length) * 100 : 0;
+  // Cuenta regresiva del próximo intento mientras la API está en mantenimiento.
+  const [resto, setResto] = useState(REINTENTO_MANTENIMIENTO_MS / 1000);
+  useEffect(() => {
+    if (!enMantenimiento) return;
+    setResto(REINTENTO_MANTENIMIENTO_MS / 1000);
+    const id = setInterval(() => setResto((r) => (r <= 1 ? REINTENTO_MANTENIMIENTO_MS / 1000 : r - 1)), 1000);
+    return () => clearInterval(id);
+  }, [enMantenimiento]);
 
   return (
     <div className="wrap">
@@ -108,22 +125,46 @@ export default function App() {
             <li>Los proyectos del portafolio no dependen de este panel: pueden estar funcionando con normalidad.</li>
             <li>El panel vuelve solo apenas el servicio responda.</li>
           </ul>
+          <p className="reintento">
+            <Anillo valor={(resto / (REINTENTO_MANTENIMIENTO_MS / 1000)) * 100} color="var(--oracle)" tamano={20} grosor={5} />
+            <span>Nuevo intento en {resto} s</span>
+          </p>
         </section>
       ) : (
       <>
-      <div className="summary">
-        <div>
-          <span className="figure">{online}</span>
-          <small>de {projects.length || "…"} proyectos funcionando ahora</small>
+      {/* Tarjeta protagonista (estilo Helios/Dwisun): estado de ahora con anillo y dos cifras de la semana. */}
+      <section className="summary heroe" aria-label="Resumen del portafolio">
+        <div className="heroe-principal">
+          <Anillo valor={pctAhora} color="#ffffff" tamano={88} grosor={7}>
+            <b>{Math.round(pctAhora)}%</b>
+          </Anillo>
+          <div>
+            <p className="heroe-etiqueta"><span className="pulso" aria-hidden="true" /> En vivo</p>
+            <span className="figure">{online}</span>
+            <small>de {projects.length || "…"} proyectos funcionando ahora</small>
+            {projects.length > 0 && vigentes.length < projects.length && (
+              <div className="label">{projects.length - vigentes.length} sin revisión en las últimas 24 h</div>
+            )}
+            <div className="label">
+              {lastUpdated ? `Última revisión hace ${Math.round((Date.now() - lastUpdated.getTime()) / 1000)}s` : "Cargando…"}
+            </div>
+          </div>
         </div>
-        <div className="label">
-          {lastUpdated ? `· última revisión hace ${Math.round((Date.now() - lastUpdated.getTime()) / 1000)}s` : ""}
+        <div className="heroe-cifras">
+          <div>
+            <span>{promedioMs != null ? `${promedioMs} ms` : "—"}</span>
+            <small>respuesta promedio ahora</small>
+          </div>
+          <div>
+            <span>{projects.length ? `${semanal.toFixed(1)}%` : "—"}</span>
+            <small>funcionando esta semana (promedio)</small>
+          </div>
         </div>
-      </div>
+      </section>
 
       <div className="grid">
-        {projects.map((p) => (
-          <ProjectCard key={p.slug} project={p} history={histories[p.slug] ?? []} isDark={isDark} />
+        {projects.map((p, i) => (
+          <ProjectCard key={p.slug} project={p} history={histories[p.slug] ?? []} isDark={isDark} orden={i} />
         ))}
       </div>
       </>
