@@ -72,10 +72,10 @@ Qué servicio de nube, base de datos o API usa el proyecto y para qué sirve cad
 
 | Elemento | Qué significa |
 |---|---|
-| Contador superior | Cuántos proyectos funcionan ahora y hace cuánto fue la última revisión |
-| Punto y etiqueta de estado | **Funcionando** (verde), **Lento** o **No responde** (ámbar) |
+| Tarjeta principal | Un anillo con el porcentaje de proyectos funcionando ahora, cuántos son de cuántos, hace cuánto fue la última revisión, la **respuesta promedio** de los que responden y el promedio de **funcionando esta semana**. El punto verde de **En vivo** late mientras el panel se actualiza solo |
+| Punto y etiqueta de estado | **Funcionando** (verde), **Lento** o **No responde** (ámbar). Si un proyecto lleva más de un día sin revisión, la etiqueta dice **N d sin revisar** (gris) en lugar de mostrar un estado viejo como si fuera de ahora, y la tarjeta principal indica cuántos están en esa situación |
 | Responde en | Cuánto tardó la página en cargar en la última revisión; entre menos, mejor |
-| Funcionando esta semana | Porcentaje de revisiones de los últimos 7 días en que respondió bien |
+| Funcionando esta semana | Porcentaje de revisiones de los últimos 7 días en que respondió bien, con un anillo del color del proyecto |
 | Barras | Historial reciente, de "hace 7 días" a "ahora". El color es el del proyecto; las barras resaltadas marcan revisiones lentas o fallidas |
 | Tarjeta | Al pulsarla abre la demo del proyecto |
 | Claro / Oscuro | Cambia el tema |
@@ -83,6 +83,13 @@ Qué servicio de nube, base de datos o API usa el proyecto y para qué sirve cad
 La página completa, con todas las tarjetas:
 
 ![Panel completo](img/manual/02-panel-completo.png)
+
+**En la tablet y en el celular** las tarjetas se reacomodan en dos columnas o en una, y la tarjeta
+principal pone sus dos cifras debajo del anillo. La página se ajusta sola al girar la pantalla.
+
+![Panel en una tablet en vertical](img/manual/03-tablet-vertical.png)
+
+![Panel en el celular](img/manual/04-movil.png)
 
 ### 4.2 Usar las insignias
 
@@ -109,7 +116,24 @@ planes gratuitos que se duermen sin uso; la primera visita los despierta y tarda
 **¿Puedo agregar mi proyecto?** El monitoreo cubre solo los proyectos de este portafolio
 (`backend/app/projects.py`).
 
-**¿Qué significa la pantalla "Estamos en mantenimiento"?** El servicio o su base de datos no están respondiendo en ese momento. No se perdió nada: el historial de disponibilidad siguen guardados, y ninguna acción quedó a medias (si no viste la confirmación, no se guardó). La pantalla se actualiza sola y vuelve a la normalidad apenas el servicio responda; también puedes reintentar más tarde.
+**¿Cada cuánto se revisa cada proyecto?** Los que están siempre encendidos, cada pocos minutos.
+Los que se apagan sin uso (para no generar costos), a las 8, 12, 16 y 20 h de Bogotá; si el monitor
+estaba dormido a esa hora, hace la revisión pendiente apenas vuelve a estar activo.
+
+**¿Puedo instalarlo como aplicación?** Sí. En Chrome o Edge usa **Instalar aplicación** (ícono
+en la barra de direcciones o menú ⋮); en el iPhone, en Safari, **Compartir → Agregar a inicio**.
+
+**¿Qué pasa si me quedo sin internet?** Aparece la pantalla **Sin conexión**, que reintenta sola
+cada pocos segundos (o con **Reintentar ahora**). Los proyectos no dependen de este panel.
+
+![Pantalla sin conexión con reintento automático](img/manual/06-sin-conexion.png)
+
+**Abrí un enlace y dice "Esta dirección no responde".** La dirección no existe en el monitor (un
+enlace viejo o mal copiado). Usa **Ver el monitor**.
+
+![Página no encontrada](img/manual/05-no-encontrada.png)
+
+**¿Qué significa la pantalla "Estamos en mantenimiento"?** El servicio o su base de datos no están respondiendo en ese momento. No se perdió nada: el historial de disponibilidad sigue guardado, y ninguna acción quedó a medias (si no viste la confirmación, no se guardó). La pantalla reintenta sola cada 15 segundos (un anillo muestra los que faltan) y vuelve a la normalidad apenas el servicio responda; también puedes reintentar más tarde.
 
 ## 5. Seguridad: tu información protegida
 
