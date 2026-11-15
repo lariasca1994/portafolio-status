@@ -181,7 +181,7 @@ repo (requiere tener el wallet de Oracle ya descomprimido en
 
 > 📘 **[Manual de usuario](docs/MANUAL.md)**: cómo usar el panel campo por campo, qué datos se ingresan y qué garantiza en seguridad.
 
-**Luis Felipe Arias Carriazo**
+**Luis F. A.**
 [GitHub](https://github.com/lariasca1994) · [LinkedIn](https://linkedin.com/in/lfac1)
 
 Licencia: MIT.

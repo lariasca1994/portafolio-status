@@ -84,7 +84,7 @@ export default function App() {
     <div className="wrap">
       <header>
         <div>
-          <p className="eyebrow">Portafolio de Luis Felipe Arias</p>
+          <p className="eyebrow">Portafolio de Luis F. A.</p>
           <h1>Monitor de disponibilidad de servicios</h1>
           <p className="sub">
             Panel de monitoreo en tiempo real: cada pocos minutos se valida si cada proyecto del
