@@ -86,6 +86,18 @@ def insert_check(proyecto: str, url: str, status_code: int | None, tiempo_ms: in
         conn.commit()
 
 
+def delete_old_checks(dias: int = 15) -> int:
+    """Borra los chequeos con más de `dias` días (regla del portafolio: nada se guarda más de 15
+    días). El panel solo usa los últimos 7 días, así que no se pierde nada visible."""
+    pool = get_pool()
+    with pool.acquire() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM CHECKS_LOG WHERE CHECKED_AT < SYSTIMESTAMP - :dias", dias=dias)
+            borrados = cur.rowcount
+        conn.commit()
+    return borrados
+
+
 def fetch_latest_per_project():
     """Un registro por proyecto: el chequeo más reciente."""
     pool = get_pool()

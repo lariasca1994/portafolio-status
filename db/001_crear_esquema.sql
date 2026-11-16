@@ -39,8 +39,8 @@ CREATE INDEX IDX_CHECKS_PROY_FECHA ON CHECKS_LOG (PROYECTO, CHECKED_AT);
 -- ============================================================
 -- Paso 3 (opcional pero recomendado): borrar chequeos viejos para
 -- no llenar el espacio gratis de la base. Esto borra todo lo de
--- hace más de 30 días — puedes correrlo a mano de vez en cuando,
+-- hace más de 15 días — puedes correrlo a mano de vez en cuando,
 -- o programarlo con un DBMS_SCHEDULER más adelante.
 -- ============================================================
--- DELETE FROM CHECKS_LOG WHERE CHECKED_AT < SYSTIMESTAMP - 30;
+-- DELETE FROM CHECKS_LOG WHERE CHECKED_AT < SYSTIMESTAMP - 15;  (el backend ya lo hace solo cada día)
 -- COMMIT;

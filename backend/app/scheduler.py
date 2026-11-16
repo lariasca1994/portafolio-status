@@ -14,7 +14,7 @@ import httpx
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from .config import settings
-from .database import fetch_latest_per_project, insert_check
+from .database import delete_old_checks, fetch_latest_per_project, insert_check
 from .projects import PROJECTS
 
 logger = logging.getLogger("portfolio-status.scheduler")
@@ -130,6 +130,15 @@ def check_scheduled_projects(hora: int):
             check_one_project(project)
 
 
+def depurar_chequeos():
+    """Una vez al día borra los chequeos con más de 15 días."""
+    try:
+        borrados = delete_old_checks(15)
+        logger.info("Depuración: %s chequeos con más de 15 días borrados", borrados)
+    except Exception:  # noqa: BLE001 - la depuración nunca debe tumbar el servicio
+        logger.exception("No se pudo depurar CHECKS_LOG")
+
+
 def start_scheduler() -> BackgroundScheduler:
     scheduler = BackgroundScheduler(timezone="America/Bogota")
     scheduler.add_job(
@@ -148,5 +157,6 @@ def start_scheduler() -> BackgroundScheduler:
             args=[hora],
             id=f"check_scheduled_{hora}",
         )
+    scheduler.add_job(depurar_chequeos, "cron", hour=3, minute=15, id="depurar_chequeos")
     scheduler.start()
     return scheduler

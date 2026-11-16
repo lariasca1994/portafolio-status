@@ -1,170 +1,155 @@
-# 📘 Manual de usuario · Portfolio Status
+# 📘 Manual de usuario · Monitor de disponibilidad (Portfolio Status)
 
-Guía para leer el panel y usar las insignias: qué muestra cada dato, qué información se maneja y
-qué protege la plataforma. Para la parte técnica vuelve al [README](../README.md).
+## 1. Portada
 
-**Panel:** [frontend-nine-topaz-99.vercel.app](https://frontend-nine-topaz-99.vercel.app/) ·
-**API:** [portafolio-status.onrender.com](https://portafolio-status.onrender.com/)
+![Portada del Monitor de disponibilidad de servicios](img/manual/01-portada.png)
+
+| | |
+|---|---|
+| **Producto** | Monitor de disponibilidad de servicios (Portfolio Status) |
+| **Documento** | Manual de usuario |
+| **Versión** | 2.0 · noviembre de 2026 |
+| **Dirigido a** | Cualquier persona que quiera saber si los proyectos del portafolio están en línea |
+| **Dirección** | [Monitor de disponibilidad](https://frontend-nine-topaz-99.vercel.app/) |
+| **Autor** | Luis F. A. |
 
 ## Contenido
 
-1. [Proyecto: objetivos y alcances](#1-proyecto-objetivos-y-alcances)
-2. [Glosario](#2-glosario)
-3. [Plataformas, base de datos y servicios](#3-plataformas-base-de-datos-y-servicios)
-4. [Paso a paso](#4-paso-a-paso)
-5. [Seguridad: tu información protegida](#5-seguridad-tu-información-protegida)
-6. [Agradecimientos](#6-agradecimientos)
+1. [Portada](#1-portada)
+2. [Introducción](#2-introducción)
+3. [Objetivo](#3-objetivo)
+4. [Alcance](#4-alcance)
+5. [Acceso al sistema](#5-acceso-al-sistema)
+6. [Pantalla principal](#6-pantalla-principal)
+7. [Navegación](#7-navegación)
+8. [Funcionalidades](#8-funcionalidades)
+9. [Gestión de perfil](#9-gestión-de-perfil)
+10. [Mensajes frecuentes](#10-mensajes-frecuentes)
+11. [Preguntas frecuentes](#11-preguntas-frecuentes)
+12. [Glosario](#12-glosario)
 
 ---
 
-## 1. Proyecto: objetivos y alcances
+## 2. Introducción
 
-### Objetivo
+El **Monitor de disponibilidad** revisa cada pocos minutos si cada proyecto del portafolio sigue en
+línea y cuánto tarda en responder. Muestra el resultado en un panel con una tarjeta por proyecto y en
+insignias que aparecen en el README de cada uno.
 
-Cada pocos minutos, el backend visita la dirección de cada proyecto del portafolio, anota si
-respondió y en cuánto tiempo, y guarda el historial. El panel lo muestra en tarjetas, y las
-insignias en vivo lo llevan a los README de GitHub.
+![Cómo funciona el Monitor de disponibilidad: personas, aplicación, plataforma e información](img/manual/00-como-funciona.svg)
 
-### Alcance: qué necesitas y qué esperar
+## 3. Objetivo
 
-- El panel es **público**: no pide cuenta ni datos.
-- Se actualiza solo cada 60 segundos; no hace falta recargar.
+Que cualquier persona pueda ver, de un vistazo y sin conocimientos técnicos, qué proyectos están
+funcionando, cuáles responden lento y cómo les ha ido en la semana.
 
-## 2. Glosario
+## 4. Alcance
 
-Palabras técnicas que aparecen en este manual, explicadas en lenguaje simple.
+**Incluye:** estado actual de cada proyecto, tiempo de respuesta, disponibilidad de los últimos 7
+días, historial en barras, insignias para los README y uso en celular, tablet y computador.
 
-| Término | Qué significa |
-|---|---|
-| **API** | Puerta de entrada de un programa para que otros programas le pidan o le envíen datos. |
-| **Arranque en frío** | Los servidores gratuitos se apagan sin uso; la primera visita tarda unos segundos mientras vuelven a encenderse. |
-| **Backend** | La parte de la aplicación que trabaja "detrás": procesa lo que envías y habla con la base de datos. |
-| **Base de datos** | Lugar donde la aplicación guarda la información de forma ordenada y permanente. |
-| **Cifrado / TLS / HTTPS** | Protección que codifica la información mientras viaja, para que nadie en el camino pueda leerla. |
-| **Cookie** | Pequeño dato que el navegador guarda para recordar tu sesión en ese sitio. |
-| **Frontend** | La parte de la aplicación que ves y usas en el navegador. |
-| **Insignia (badge)** | Pequeña imagen que muestra un estado en vivo, por ejemplo en un README de GitHub. |
-| **Modo mantenimiento** | Pantalla que aparece cuando el servicio o su base de datos no responden; se recupera sola cuando vuelven. |
-| **Métricas** | Medidas de un equipo como uso de CPU, memoria, disco o red. |
-| **Navegador** | Programa con el que abres páginas web: Chrome, Edge, Firefox, Safari. |
-| **Nube** | Servidores de una empresa (Amazon, Microsoft, Google, Oracle…) donde la aplicación funciona sin depender de un computador propio. |
-| **Prueba E2E** | Prueba que recorre la aplicación de punta a punta como lo haría una persona real. |
-| **Tema claro / oscuro** | Combinación de colores de la interfaz; puedes elegir la clara o la oscura. |
-| **Uptime / disponibilidad** | Porcentaje del tiempo en que un servicio estuvo funcionando. |
-| **Variables de entorno / secretos** | Claves y contraseñas internas de la aplicación, guardadas fuera del código para que no queden expuestas. |
+**No incluye:** revisar proyectos de terceros: solo los del portafolio.
 
-## 3. Plataformas, base de datos y servicios
+**Qué necesitas:** un navegador y conexión a internet.
 
-Qué servicio de nube, base de datos o API usa el proyecto y para qué sirve cada uno.
+## 5. Acceso al sistema
 
-| Plataforma | Tipo | Qué hace en el proyecto |
-|---|---|---|
-| ![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black) | Nube | Corre el backend FastAPI como servicio Docker: el monitor que revisa los proyectos y la API que expone el estado y las insignias. |
-| ![Oracle DB](https://img.shields.io/badge/Oracle_DB-F80000?style=for-the-badge&logo=oracle&logoColor=white) | Base de datos | Oracle Autonomous Database guarda cada revisión, en un esquema propio (`PORTFOLIO_STATUS`) separado del de cualquier otro proyecto. |
-| ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white) | Nube | Sirve el dashboard React. |
-| ![qa-evidencia](https://img.shields.io/badge/qa--evidencia-2EAD33?style=for-the-badge&logo=playwright&logoColor=white) | Pruebas automatizadas | API de resultados (en AWS) que alimenta las insignias de última prueba E2E. |
+No necesitas cuenta: el panel es público y solo muestra información. Abre la
+[dirección del panel](https://frontend-nine-topaz-99.vercel.app/) y verás el estado de todos los
+proyectos.
 
-## 4. Paso a paso
+## 6. Pantalla principal
 
-### 4.1 Leer el panel
+![Panel con sus partes numeradas](img/manual/06-pantalla-principal.png)
 
-![Panel de estado de los proyectos](img/manual/01-panel.png)
+| # | Elemento | Qué muestra |
+|:-:|---|---|
+| 1 | Tarjeta principal | Cuántos proyectos funcionan ahora, la respuesta promedio y la disponibilidad de la semana; **En vivo** late mientras el panel se actualiza solo |
+| 2 | Nombre y estado | **Funcionando** (verde), **Lento** o **No responde** (ámbar); si lleva más de un día sin revisión dice **N d sin revisar** |
+| 3 | Cifras | **Responde en** (cuánto tardó la última vez) y **Funcionando esta semana** (porcentaje de revisiones correctas) |
+| 4 | Barras | Historial de "hace 7 días" a "ahora"; las resaltadas marcan revisiones lentas o fallidas |
+| 5 | Claro / Oscuro | Cambia el tema |
 
-| Elemento | Qué significa |
-|---|---|
-| Tarjeta principal | Un anillo con el porcentaje de proyectos funcionando ahora, cuántos son de cuántos, hace cuánto fue la última revisión, la **respuesta promedio** de los que responden y el promedio de **funcionando esta semana**. El punto verde de **En vivo** late mientras el panel se actualiza solo |
-| Punto y etiqueta de estado | **Funcionando** (verde), **Lento** o **No responde** (ámbar). Si un proyecto lleva más de un día sin revisión, la etiqueta dice **N d sin revisar** (gris) en lugar de mostrar un estado viejo como si fuera de ahora, y la tarjeta principal indica cuántos están en esa situación |
-| Responde en | Cuánto tardó la página en cargar en la última revisión; entre menos, mejor |
-| Funcionando esta semana | Porcentaje de revisiones de los últimos 7 días en que respondió bien, con un anillo del color del proyecto |
-| Barras | Historial reciente, de "hace 7 días" a "ahora". El color es el del proyecto; las barras resaltadas marcan revisiones lentas o fallidas |
-| Tarjeta | Al pulsarla abre la demo del proyecto |
-| Claro / Oscuro | Cambia el tema |
+## 7. Navegación
 
-La página completa, con todas las tarjetas:
+Es una sola página: desplázate hacia abajo para ver todas las tarjetas. Al pulsar una tarjeta se
+abre la demo de ese proyecto. En la tablet y en el celular las tarjetas se acomodan en dos columnas o
+en una.
 
-![Panel completo](img/manual/02-panel-completo.png)
+| Tablet en vertical | Celular |
+|:-:|:-:|
+| ![Panel en una tablet en vertical](img/manual/07-navegacion-tablet.png) | ![Panel en el celular](img/manual/08-navegacion-movil.png) |
 
-**En la tablet y en el celular** las tarjetas se reacomodan en dos columnas o en una, y la tarjeta
-principal pone sus dos cifras debajo del anillo. La página se ajusta sola al girar la pantalla.
+El tema oscuro se ve así:
 
-![Panel en una tablet en vertical](img/manual/03-tablet-vertical.png)
+![Panel en tema oscuro](img/manual/18-tema-oscuro.png)
 
-![Panel en el celular](img/manual/04-movil.png)
+## 8. Funcionalidades
 
-### 4.2 Usar las insignias
+### 8.1 Crear
 
-Cada insignia es una imagen SVG que se puede poner en cualquier README:
+No hay nada que crear: el panel es de solo lectura. Las revisiones las hace el monitor solo.
 
-| Insignia | URL |
+### 8.2 Consultar: el panel completo
+
+![Panel completo con todos los proyectos](img/manual/10-consultar.png)
+
+### 8.3 Modificar
+
+No aplica: la información se actualiza sola cada 60 segundos.
+
+### 8.4 Reportar: insignias
+
+Cada insignia es una imagen que se puede poner en cualquier README:
+
+| Insignia | Dirección |
 |---|---|
 | Resumen del portafolio | `https://portafolio-status.onrender.com/api/status/badge.svg` |
 | Última corrida E2E del portafolio | `https://portafolio-status.onrender.com/api/status/qa-badge.svg` |
-| Estado de un proyecto | `https://portafolio-status.onrender.com/api/status/{slug}/badge.svg` |
-| Última prueba E2E de un proyecto | `https://portafolio-status.onrender.com/api/status/{slug}/qa-badge.svg` |
+| Estado de un proyecto | `https://portafolio-status.onrender.com/api/status/{proyecto}/badge.svg` |
+| Última prueba E2E de un proyecto | `https://portafolio-status.onrender.com/api/status/{proyecto}/qa-badge.svg` |
 
-Ejemplo en Markdown:
+## 9. Gestión de perfil
 
-```markdown
-![Estado](https://portafolio-status.onrender.com/api/status/taskflow/badge.svg)
-```
+No aplica: el panel no tiene cuentas ni datos personales. La única preferencia, el tema claro u
+oscuro, se recuerda en tu navegador.
 
-### 4.3 Preguntas frecuentes
+## 10. Mensajes frecuentes
 
-**¿Por qué un proyecto aparece "Lento" o "No responde" y luego se recupera?** Varios proyectos usan
-planes gratuitos que se duermen sin uso; la primera visita los despierta y tarda más.
+| Mensaje | Qué significa | Qué hacer |
+|---|---|---|
+| Lento | El proyecto tardó más de lo normal | Suele ser un servicio que despertaba; se normaliza solo |
+| No responde | El proyecto no contestó en la última revisión | Se vuelve a revisar en pocos minutos |
+| N d sin revisar | No hay revisiones recientes de ese proyecto | Espera a la siguiente franja de revisión |
+| Estamos en mantenimiento | El servicio del monitor no responde ahora | La pantalla reintenta sola cada 15 segundos |
+| Esta dirección no responde | La dirección no existe | Usa **Ver el monitor** |
+| Sin conexión | Tu equipo no tiene internet | La pantalla reintenta sola |
 
-**¿Puedo agregar mi proyecto?** El monitoreo cubre solo los proyectos de este portafolio
-(`backend/app/projects.py`).
+| Página no encontrada | Sin conexión |
+|:-:|:-:|
+| ![Página no encontrada](img/manual/16-no-encontrada.png) | ![Pantalla sin conexión](img/manual/17-sin-conexion.png) |
 
-**¿Cada cuánto se revisa cada proyecto?** Los que están siempre encendidos, cada pocos minutos.
-Los que se apagan sin uso (para no generar costos), a las 8, 12, 16 y 20 h de Bogotá; si el monitor
-estaba dormido a esa hora, hace la revisión pendiente apenas vuelve a estar activo.
+## 11. Preguntas frecuentes
 
-**¿Puedo instalarlo como aplicación?** Sí. En Chrome o Edge usa **Instalar aplicación** (ícono
-en la barra de direcciones o menú ⋮); en el iPhone, en Safari, **Compartir → Agregar a inicio**.
+**¿Por qué un proyecto aparece "Lento" o "No responde" y luego se recupera?** Varios proyectos se
+suspenden cuando nadie los usa; la primera visita los despierta y tarda más.
 
-**¿Qué pasa si me quedo sin internet?** Aparece la pantalla **Sin conexión**, que reintenta sola
-cada pocos segundos (o con **Reintentar ahora**). Los proyectos no dependen de este panel.
+**¿Cada cuánto se revisa cada proyecto?** Los que están siempre encendidos, cada pocos minutos. Los
+que se suspenden sin uso, a las 8, 12, 16 y 20 h de Bogotá.
 
-![Pantalla sin conexión con reintento automático](img/manual/06-sin-conexion.png)
+**¿Cuánto tiempo se guarda el historial?** 15 días; el panel muestra los últimos 7.
 
-**Abrí un enlace y dice "Esta dirección no responde".** La dirección no existe en el monitor (un
-enlace viejo o mal copiado). Usa **Ver el monitor**.
+**¿Puedo instalarlo como aplicación?** Sí: en Chrome o Edge, **Instalar aplicación**; en iPhone,
+Safari → **Compartir → Agregar a inicio**.
 
-![Página no encontrada](img/manual/05-no-encontrada.png)
+**¿Dónde pido ayuda o reporto un problema?** Telegram [@lfac6](https://t.me/lfac6), WhatsApp
+[@carraian160](https://wa.me/carraian160) o [ariascluisf@hotmail.com](mailto:ariascluisf@hotmail.com).
 
-**¿Qué significa la pantalla "Estamos en mantenimiento"?** El servicio o su base de datos no están respondiendo en ese momento. No se perdió nada: el historial de disponibilidad sigue guardado, y ninguna acción quedó a medias (si no viste la confirmación, no se guardó). La pantalla reintenta sola cada 15 segundos (un anillo muestra los que faltan) y vuelve a la normalidad apenas el servicio responda; también puedes reintentar más tarde.
+## 12. Glosario
 
-## 5. Seguridad: tu información protegida
-
-Tu confianza es lo primero: la plataforma solo pide los datos necesarios para funcionar, los protege y no los comparte con terceros. Esto es lo que se guarda y cómo se protege.
-
-### Qué datos se guardan y dónde
-
-| Dato | Origen | Dónde se guarda | Datos personales |
-|---|---|---|---|
-| Resultado de cada revisión (código HTTP, milisegundos, fecha) | El monitor del backend | Oracle Autonomous Database | Ninguno |
-| Fecha y resultado de las pruebas E2E | Publicados por qa-evidencia | Se consultan, no se guardan aquí | Ninguno |
-| Lista de proyectos | `backend/app/projects.py` | Código fuente | Ninguno |
-
-Las visitas al panel no se registran ni usan cookies de seguimiento.
-
-### Cómo se protege tu información
-
-Comprobado en el código del proyecto (`backend/app/main.py`, `config.py`, `database.py`):
-
-- **API de solo lectura:** no expone ninguna ruta que cree, modifique o borre datos; las revisiones
-  las hace el propio backend.
-- **Sin datos personales:** solo se guardan métricas de disponibilidad de URLs públicas.
-- **Conexión a Oracle con Wallet (TLS mutuo):** el wallet viaja como secreto codificado en una
-  variable de entorno de Render y se descomprime en un directorio temporal al arrancar; nunca
-  está en el repositorio.
-- **Secretos en variables de entorno**, nunca en el código.
-- **Al día en seguridad:** el runtime, el sistema y las dependencias se mantienen con los últimos
-  parches y se revisan periódicamente.
-
-## 6. Agradecimientos
-
-A mi familia, por su apoyo incondicional, su paciencia y por creer en cada proyecto incluso cuando apenas era una idea. Este trabajo también es de ustedes.
-
-Y a ti, que usas esta plataforma: cada prueba, comentario y sugerencia ayuda a que siga mejorando.
+| Término | Qué significa |
+|---|---|
+| **Disponibilidad** | Porcentaje de revisiones en que el proyecto respondió bien |
+| **E2E** | Prueba automática que recorre el proyecto como lo haría una persona |
+| **Insignia** | Pequeña imagen con el estado de un proyecto, para poner en un README |
+| **Tiempo de respuesta** | Cuánto tarda el proyecto en contestar, en milisegundos (ms) |
